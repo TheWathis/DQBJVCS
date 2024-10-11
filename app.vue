@@ -15,3 +15,11 @@ import RandomBar from './components/randomBar.vue';
     </div>
   </div>
 </template>
+
+<script lang="ts">
+export default {
+  mounted() {
+    document.title = "DQBJVCS";
+  }
+};
+</script>
