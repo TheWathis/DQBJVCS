@@ -52,6 +52,11 @@ export default {
                 }
             },
             (error) => {
+                if (error.code === error.PERMISSION_DENIED) {
+                    this.errorMessage = 'Vous avez refusé la géolocalisation. Il faut l\'accepter pour utiliser l\'application.';
+                    console.error('User denied geolocation.');
+                    return;
+                }
                 this.errorMessage = 'Erreur lors de l\'obtention de la position actuelle : ' + error.message;
                 console.error('Error getting current position:', error);
             }
