@@ -26,7 +26,7 @@ export default {
     },
     async mounted() {
         if (!navigator.geolocation) {
-            this.errorMessage = 'Geolocation is not supported by this browser.';
+            this.errorMessage = 'La géolocalisation n\'est pas supportée par ce navigateur.';
             console.error('Geolocation is not supported by this browser.');
             return;
         }
@@ -38,15 +38,21 @@ export default {
                 const limit = 20;
                 try {
                     const data = await fetchNearbyBars(longitude, latitude, radius, limit);
+                    if (data.features.length === 0) {
+                        this.errorMessage = 'Aucun bar n\'a été trouvé.';
+                        console.error('No bars found nearby.');
+                        return;
+                    }
+
                     this.bars = data.features;
                     this.randomBar = this.getRandomBar();
                 } catch (error) {
-                    this.errorMessage = 'Error fetching bars: ' + error.message;
+                    this.errorMessage = 'Erreur lors de la récupération des bars : ' + error.message;
                     console.error('Error fetching bars:', error);
                 }
             },
             (error) => {
-                this.errorMessage = 'Error getting current position: ' + error.message;
+                this.errorMessage = 'Erreur lors de l\'obtention de la position actuelle : ' + error.message;
                 console.error('Error getting current position:', error);
             }
         );
