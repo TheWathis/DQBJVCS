@@ -1,18 +1,19 @@
 <template>
     <div>
-        <div v-if="errorMessage" class="sm:text-2xl text-1xl">
+        <div v-if="errorMessage" class="sm:text-2xl text-1xl mx-4">
             <p>
                 {{ errorMessage }}
             </p>
             <div v-if="canBeFixed">
                 <br />
                 <p class="mb-4">Pas de soucis, on va se la faire à l'ancienne !</p>
-                <UInput color="primary" variant="outline" size="xl" v-model="address"
-                    placeholder="Où est-ce qu'on se trouve ?" />
-                <br />
-                <UButton class="mb-4" :loading="loading" color="primary" variant="solid" size="xl"
-                    @click="fetchBarsByAddress">Rechercher
-                </UButton>
+                <div class="flex items-center">
+                    <UInput icon="i-heroicons-map-pin" color="orange" variant="outline" size="xl" v-model="address"
+                        placeholder="Où est-ce qu'on se trouve ?" class="flex-grow mr-2" />
+                    <UButton :loading="loading" color="orange" variant="solid" size="xl" @click="fetchBarsByAddress">
+                        Rechercher
+                    </UButton>
+                </div>
             </div>
         </div>
         <div v-else-if="randomBar">
