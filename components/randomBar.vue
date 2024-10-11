@@ -1,8 +1,19 @@
-<!-- pages/index.vue -->
 <template>
     <div>
-        <div v-if="errorMessage">
-            <p>{{ errorMessage }}</p>
+        <div v-if="errorMessage" class="sm:text-2xl text-1xl">
+            <p>
+                {{ errorMessage }} 😔
+            </p>
+            <div v-if="canBeFixed">
+                <br />
+                <p class="mb-4">Pas de soucis, on va se la faire à l'ancienne !</p>
+                <UInput color="primary" variant="outline" size="xl" v-model="address"
+                    placeholder="Entrez une adresse, la votre par exemple" />
+                <br />
+                <UButton class="mb-4" :loading="loading" color="primary" variant="solid" size="xl"
+                    @click="fetchBarsByAddress">Rechercher
+                </UButton>
+            </div>
         </div>
         <div v-else-if="randomBar">
             <p>{{ randomBar.properties.name }} !</p>
@@ -14,20 +25,24 @@
 </template>
 
 <script>
-import { fetchNearbyBars } from '~/server/placesService';
+import { fetchNearbyBars, fetchBarsByAddress } from '~/server/placesService';
 
 export default {
     data() {
         return {
             bars: [],
             randomBar: null,
-            errorMessage: ''
+            errorMessage: '',
+            address: '',
+            loading: false,
+            canBeFixed: false
         };
     },
     async mounted() {
         if (!navigator.geolocation) {
             this.errorMessage = 'La géolocalisation n\'est pas supportée par ce navigateur.';
             console.error('Geolocation is not supported by this browser.');
+            this.canBeFixed = true;
             return;
         }
         navigator.geolocation.getCurrentPosition(
@@ -39,34 +54,72 @@ export default {
                 try {
                     const data = await fetchNearbyBars(longitude, latitude, radius, limit);
                     if (data.features.length === 0) {
-                        this.errorMessage = 'Aucun bar n\'a été trouvé.';
-                        console.error('No bars found nearby.');
+                        this.errorMessage = 'Aucun bar n\'a été trouvé. Déménagez dans une autre ville.';
+                        console.info('No bars found nearby.');
+                        this.canBeFixed = false;
                         return;
                     }
 
                     this.bars = data.features;
                     this.randomBar = this.getRandomBar();
                 } catch (error) {
-                    this.errorMessage = 'Erreur lors de la récupération des bars : ' + error.message;
+                    this.errorMessage = 'Erreur lors de la récupération des bars. Allez dans un bar au hasard.';
                     console.error('Error fetching bars:', error);
+                    this.canBeFixed = false;
                 }
             },
             (error) => {
                 if (error.code === error.PERMISSION_DENIED) {
                     this.errorMessage = 'Vous avez refusé la géolocalisation. Il faut l\'accepter pour utiliser l\'application.';
                     console.error('User denied geolocation.');
+                    this.canBeFixed = true;
                     return;
                 }
-                this.errorMessage = 'Erreur lors de l\'obtention de la position actuelle : ' + error.message;
+                this.errorMessage = 'Erreur lors de l\'obtention de la position actuelle.';
                 console.error('Error getting current position:', error);
+                this.canBeFixed = true;
             }
         );
+    },
+    watch: {
+        errorMessage() {
+            this.loading = false;
+        }
     },
     methods: {
         getRandomBar() {
             if (this.bars.length === 0) return null;
             const randomIndex = Math.floor(Math.random() * this.bars.length);
             return this.bars[randomIndex];
+        },
+        async fetchBarsByAddress() {
+            if (!this.address) {
+                this.errorMessage = 'Veuillez entrer une adresse.';
+                return;
+            }
+
+            this.loading = true;
+
+            try {
+                const limit = 20;
+                const data = await fetchBarsByAddress(this.address, limit);
+                if (data.features.length === 0) {
+                    this.errorMessage = 'Aucun bar n\'a été trouvé proche de cette adresse';
+                    console.error('No bars found near this address.');
+                    this.canBeFixed = true;
+                    return;
+                }
+
+                this.bars = data.features;
+                this.randomBar = this.getRandomBar();
+                this.errorMessage = '';
+            } catch (error) {
+                this.errorMessage = 'Erreur lors de la récupération des bars. Allez dans un bar au hasard.';
+                console.error('Error fetching bars:', error);
+                this.canBeFixed = false;
+            } finally {
+                this.loading = false;
+            }
         }
     }
 };

@@ -9,9 +9,9 @@ import RandomBar from './components/randomBar.vue';
       <h1 class="dark:text-white font-semibold sm:text-5xl text-4xl text-black text-center">
         Dans quel bar je vais ce soir ?
       </h1>
-      <h2 class="dark:text-white font-semibold sm:text-4xl text-3xl text-black text-center mt-8">
+      <div class="dark:text-white font-semibold sm:text-4xl text-3xl text-black text-center mt-8">
         <RandomBar />
-      </h2>
+      </div>
     </div>
   </div>
 </template>
