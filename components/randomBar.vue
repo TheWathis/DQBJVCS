@@ -2,13 +2,13 @@
     <div>
         <div v-if="errorMessage" class="sm:text-2xl text-1xl">
             <p>
-                {{ errorMessage }} 😔
+                {{ errorMessage }}
             </p>
             <div v-if="canBeFixed">
                 <br />
                 <p class="mb-4">Pas de soucis, on va se la faire à l'ancienne !</p>
                 <UInput color="primary" variant="outline" size="xl" v-model="address"
-                    placeholder="Entrez une adresse, la votre par exemple" />
+                    placeholder="Où est-ce qu'on se trouve ?" />
                 <br />
                 <UButton class="mb-4" :loading="loading" color="primary" variant="solid" size="xl"
                     @click="fetchBarsByAddress">Rechercher
@@ -54,7 +54,7 @@ export default {
                 try {
                     const data = await fetchNearbyBars(longitude, latitude, radius, limit);
                     if (data.features.length === 0) {
-                        this.errorMessage = 'Aucun bar n\'a été trouvé. Déménagez dans une autre ville.';
+                        this.errorMessage = 'Aucun bar n\'a été trouvé. On déménage dans une autre ville !';
                         console.info('No bars found nearby.');
                         this.canBeFixed = false;
                         return;
@@ -63,14 +63,14 @@ export default {
                     this.bars = data.features;
                     this.randomBar = this.getRandomBar();
                 } catch (error) {
-                    this.errorMessage = 'Erreur lors de la récupération des bars. Allez dans un bar au hasard.';
+                    this.errorMessage = 'Erreur lors de la récupération des bars. On va dans un bar au hasard !';
                     console.error('Error fetching bars:', error);
                     this.canBeFixed = false;
                 }
             },
             (error) => {
                 if (error.code === error.PERMISSION_DENIED) {
-                    this.errorMessage = 'Vous avez refusé la géolocalisation. Il faut l\'accepter pour utiliser l\'application.';
+                    this.errorMessage = 'Il nous faut la géolocalisation pour faire fonctionner l\'application.';
                     console.error('User denied geolocation.');
                     this.canBeFixed = true;
                     return;
@@ -94,7 +94,7 @@ export default {
         },
         async fetchBarsByAddress() {
             if (!this.address) {
-                this.errorMessage = 'Veuillez entrer une adresse.';
+                this.errorMessage = 'Il nous faut une adresse.';
                 return;
             }
 
@@ -104,7 +104,7 @@ export default {
                 const limit = 20;
                 const data = await fetchBarsByAddress(this.address, limit);
                 if (data.features.length === 0) {
-                    this.errorMessage = 'Aucun bar n\'a été trouvé proche de cette adresse';
+                    this.errorMessage = 'Aucun bar n\'a été trouvé proche de cette adresse.';
                     console.error('No bars found near this address.');
                     this.canBeFixed = true;
                     return;
@@ -114,7 +114,7 @@ export default {
                 this.randomBar = this.getRandomBar();
                 this.errorMessage = '';
             } catch (error) {
-                this.errorMessage = 'Erreur lors de la récupération des bars. Allez dans un bar au hasard.';
+                this.errorMessage = 'Erreur lors de la récupération des bars. On va dans un bar au hasard !';
                 console.error('Error fetching bars:', error);
                 this.canBeFixed = false;
             } finally {
