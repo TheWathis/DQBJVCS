@@ -20,7 +20,7 @@
             <p>{{ randomBar.properties.name }} !</p>
         </div>
         <div v-else>
-            <p>Chargement...</p>
+            <p>En recherche du bar...</p>
         </div>
     </div>
 </template>
@@ -54,6 +54,9 @@ export default {
                 const limit = 20;
                 try {
                     const data = await fetchNearbyBars(longitude, latitude, radius, limit);
+                    // Remove bars without a name
+                    data.features = data.features.filter(bar => bar.properties.name);
+
                     if (data.features.length === 0) {
                         this.errorMessage = 'Aucun bar n\'a été trouvé. On déménage dans une autre ville !';
                         console.info('No bars found nearby.');
@@ -88,11 +91,18 @@ export default {
         }
     },
     methods: {
+        /**
+         * Get a random bar from the list.
+         * @returns {Object} A random bar.
+         */
         getRandomBar() {
             if (this.bars.length === 0) return null;
             const randomIndex = Math.floor(Math.random() * this.bars.length);
             return this.bars[randomIndex];
         },
+        /**
+         * Fetch bars by address.
+         */
         async fetchBarsByAddress() {
             if (!this.address) {
                 this.errorMessage = 'Il nous faut une adresse.';
@@ -104,6 +114,9 @@ export default {
             try {
                 const limit = 20;
                 const data = await fetchBarsByAddress(this.address, limit);
+                // Remove bars without a name
+                data.features = data.features.filter(bar => bar.properties.name);
+
                 if (data.features.length === 0) {
                     this.errorMessage = 'Aucun bar n\'a été trouvé proche de cette adresse.';
                     console.error('No bars found near this address.');
