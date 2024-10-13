@@ -13,7 +13,18 @@ export const fetchNearbyBars = async (longitude, latitude, radius, limit) => {
     const config = useRuntimeConfig();
     const API_KEY = config.public.geoapifyPlacesApiKey;
 
-    const url = `https://api.geoapify.com/v2/places?categories=catering.bar,catering.pub&filter=circle:${longitude},${latitude},${radius}&limit=${limit}&apiKey=${API_KEY}`;
+    // Generate a random point within the radius
+    const randomAngle = Math.random() * 2 * Math.PI;
+    const randomRadius = Math.sqrt(Math.random()) * radius;
+    const offsetX = randomRadius * Math.cos(randomAngle);
+    const offsetY = randomRadius * Math.sin(randomAngle);
+
+    // Convert meters to degrees
+    const randomLongitude = longitude + (offsetX / 111320);
+    const randomLatitude = latitude + (offsetY / 110540);
+
+    const proximity = `${randomLongitude},${randomLatitude}`;
+    const url = `https://api.geoapify.com/v2/places?categories=catering.bar,catering.pub&filter=circle:${longitude},${latitude},${radius}&limit=${limit}&bias=proximity:${proximity}&apiKey=${API_KEY}`;
 
     try {
         const response = await axios.get(url);
