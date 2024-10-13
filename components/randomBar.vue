@@ -18,6 +18,14 @@
         </div>
         <div v-else-if="randomBar">
             <p>{{ randomBar.properties.name }} !</p>
+            <div class="flex items-center justify-around mt-8">
+                <UButton color="red" variant="outline" size="xl" @click="hideBar">
+                    Cache moi ce bar
+                </UButton>
+                <UButton color="orange" variant="outline" size="xl" @click="getRandomBar">
+                    Je veux un autre bar
+                </UButton>
+            </div>
         </div>
         <div v-else>
             <p>En recherche du bar...</p>
@@ -65,7 +73,7 @@ export default {
                     }
 
                     this.bars = data.features;
-                    this.randomBar = this.getRandomBar();
+                    this.getRandomBar();
                 } catch (error) {
                     this.errorMessage = 'Erreur lors de la récupération des bars. On va dans un bar au hasard !';
                     console.error('Error fetching bars:', error);
@@ -96,9 +104,36 @@ export default {
          * @returns {Object} A random bar.
          */
         getRandomBar() {
-            if (this.bars.length === 0) return null;
-            const randomIndex = Math.floor(Math.random() * this.bars.length);
-            return this.bars[randomIndex];
+            if (this.bars.length === 0) this.randomBar = null;
+            let ignoredBars = JSON.parse(localStorage.getItem('ignoredBar') || '[]');
+            const availableBars = this.bars.filter(bar => !ignoredBars.includes(bar.properties.name));
+
+            if (availableBars.length === 0) {
+                this.randomBar = null;
+            }
+
+            const randomIndex = Math.floor(Math.random() * availableBars.length);
+            const randomBar = availableBars[randomIndex];
+
+            if (!randomBar.properties.name) {
+                this.randomBar = this.getRandomBar();
+            }
+
+            this.randomBar = randomBar;
+        },
+        /**
+         * Hide the current bar and get a new one.
+         */
+        hideBar() {
+            if (!this.randomBar) return;
+            if (localStorage.getItem('ignoredBar') === null) {
+                localStorage.setItem('ignoredBar', JSON.stringify([]));
+            }
+
+            let ignoredBar = JSON.parse(localStorage.getItem('ignoredBar'));
+            ignoredBar.push(this.randomBar.properties.name);
+            localStorage.setItem('ignoredBar', JSON.stringify(ignoredBar));
+            this.getRandomBar();
         },
         /**
          * Fetch bars by address.
@@ -125,7 +160,7 @@ export default {
                 }
 
                 this.bars = data.features;
-                this.randomBar = this.getRandomBar();
+                this.getRandomBar();
                 this.errorMessage = '';
             } catch (error) {
                 this.errorMessage = 'Erreur lors de la récupération des bars. On va dans un bar au hasard !';
