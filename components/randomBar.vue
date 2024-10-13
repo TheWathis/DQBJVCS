@@ -104,19 +104,29 @@ export default {
          * @returns {Object} A random bar.
          */
         getRandomBar() {
-            if (this.bars.length === 0) this.randomBar = null;
+            if (this.bars.length === 0) {
+                this.randomBar = null;
+                return;
+            }
             let ignoredBars = JSON.parse(localStorage.getItem('ignoredBar') || '[]');
             const availableBars = this.bars.filter(bar => !ignoredBars.includes(bar.properties.name));
 
             if (availableBars.length === 0) {
                 this.randomBar = null;
+                return;
             }
 
             const randomIndex = Math.floor(Math.random() * availableBars.length);
             const randomBar = availableBars[randomIndex];
 
             if (!randomBar.properties.name) {
-                this.randomBar = this.getRandomBar();
+                this.getRandomBar();
+                return;
+            }
+
+            if (randomBar.properties.name === this.randomBar?.properties.name) {
+                this.getRandomBar();
+                return;
             }
 
             this.randomBar = randomBar;
