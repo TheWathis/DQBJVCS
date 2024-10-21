@@ -22,13 +22,13 @@
         <div v-else-if="randomBar">
             <p>{{ randomBar.properties.name }} !</p>
             <div class="flex items-center justify-around mt-8">
-                <UButton color="red" variant="outline" size="xl" @click="hideBar" data-umami-event="hide-pub"
-                    :data-umami-event-pub="randomBar.properties.name">
+                <UButton id="hide-button" color="red" variant="outline" size="xl" @click="hideBar"
+                    data-umami-event="hide-pub" :data-umami-event-pub="randomBar.properties.name">
                     Cache moi ce bar
                 </UButton>
-                <UButton color="orange" variant="outline" size="xl" @click="getRandomBar" data-umami-event="reroll-pub"
-                    :data-umami-event-pub="randomBar.properties.name">
-                    Je veux un autre bar
+                <UButton id="reroll-button" color="orange" variant="outline" size="xl" @click="getRandomBar"
+                    data-umami-event="reroll-pub" :data-umami-event-pub="randomBar.properties.name">
+                    Reroll ({{ remainingRerolls }}/2)
                 </UButton>
             </div>
         </div>
@@ -50,6 +50,7 @@ export default {
             address: "",
             loading: false,
             canBeFixed: false,
+            remainingRerolls: 3, // 2 rerolls allowed
         };
     },
     async mounted() {
@@ -114,6 +115,15 @@ export default {
         errorMessage() {
             this.loading = false;
         },
+        remainingRerolls() {
+            if (this.remainingRerolls === 0) {
+                // disable reroll button
+                const rerollButton = document.getElementById("reroll-button");
+                if (rerollButton) {
+                    rerollButton.disabled = true;
+                }
+            }
+        },
     },
     methods: {
         /**
@@ -152,6 +162,7 @@ export default {
                 return;
             }
 
+            this.remainingRerolls -= 1;
             this.randomBar = randomBar;
         },
         /**
