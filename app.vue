@@ -1,5 +1,11 @@
 <script setup lang="ts">
 import RandomBar from "./components/randomBar.vue";
+
+useHead({
+    htmlAttrs: {
+        lang: 'fr',
+    }
+})
 </script>
 
 <template>
