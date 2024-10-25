@@ -26,7 +26,7 @@
                     data-umami-event="hide-pub" :data-umami-event-pub="randomBar.properties.name">
                     Cache moi ce bar
                 </UButton>
-                <UButton id="reroll-button" color="orange" variant="outline" size="xl" @click="getRandomBar"
+                <UButton id="reroll-button" color="orange" variant="outline" size="xl" @click="rerollBar"
                     data-umami-event="reroll-pub" :data-umami-event-pub="randomBar.properties.name">
                     Reroll ({{ remainingRerolls }}/2)
                 </UButton>
@@ -50,7 +50,7 @@ export default {
             address: "",
             loading: false,
             canBeFixed: false,
-            remainingRerolls: 3, // 2 rerolls allowed
+            remainingRerolls: 2,
         };
     },
     async mounted() {
@@ -127,6 +127,14 @@ export default {
     },
     methods: {
         /**
+         * Reroll the bar.
+         */
+        rerollBar() {
+            if (this.remainingRerolls === 0) return;
+            this.getRandomBar();
+            this.remainingRerolls--;
+        },
+        /**
          * Get a random bar from the list.
          * @returns {Object} A random bar.
          */
@@ -162,7 +170,6 @@ export default {
                 return;
             }
 
-            this.remainingRerolls -= 1;
             this.randomBar = randomBar;
         },
         /**
