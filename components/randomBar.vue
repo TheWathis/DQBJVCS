@@ -10,26 +10,95 @@
                     Pas de soucis, on va se la faire à l'ancienne !
                 </p>
                 <div class="flex items-center">
-                    <UInput icon="i-heroicons-map-pin" color="orange" variant="outline" size="xl" v-model="address"
-                        placeholder="Où est-ce qu'on se trouve ?" class="flex-grow mr-2" />
-                    <UButton :loading="loading" color="orange" variant="solid" size="xl" @click="fetchBarsByAddress"
-                        data-umami-event="manual-search">
+                    <UInput
+                        icon="i-heroicons-map-pin"
+                        color="orange"
+                        variant="outline"
+                        size="xl"
+                        v-model="address"
+                        placeholder="Où est-ce qu'on se trouve ?"
+                        class="flex-grow mr-2"
+                        @keyup.enter="fetchBarsByAddress"
+                    />
+                    <UButton
+                        :loading="loading"
+                        color="orange"
+                        variant="solid"
+                        size="xl"
+                        @click="fetchBarsByAddress"
+                        data-umami-event="manual-search"
+                    >
                         Rechercher
                     </UButton>
                 </div>
             </div>
         </div>
         <div v-else-if="randomBar">
-            <p>{{ randomBar.properties.name }} !</p>
-            <div class="flex items-center justify-around mt-8">
-                <UButton id="hide-button" color="red" variant="outline" size="xl" @click="hideBar"
-                    data-umami-event="hide-pub" :data-umami-event-pub="randomBar.properties.name">
-                    Cache moi ce bar
-                </UButton>
-                <UButton id="reroll-button" color="orange" variant="outline" size="xl" @click="rerollBar"
-                    data-umami-event="reroll-pub" :data-umami-event-pub="randomBar.properties.name">
+            <p>{{ randomBar.tags.name }} !</p>
+            <!-- Desktop -->
+            <div class="hidden md:grid grid-cols-3 gap-4 mt-8">
+                <div class="flex justify-start">
+                    <UButton
+                        id="hide-button"
+                        color="red"
+                        variant="outline"
+                        size="xl"
+                        @click="hideBar"
+                        data-umami-event="hide-pub"
+                        :data-umami-event-pub="randomBar.tags.name"
+                    >
+                        Cache moi ce bar
+                    </UButton>
+                </div>
+
+                <div class="flex justify-center">
+                    <UButton
+                        id="reroll-button"
+                        color="orange"
+                        variant="outline"
+                        size="xl"
+                        @click="rerollBar"
+                        data-umami-event="reroll-pub"
+                        :data-umami-event-pub="randomBar.tags.name"
+                    >
+                        Reroll ({{ remainingRerolls }}/2)
+                    </UButton>
+                </div>
+
+                <div class="flex justify-end">
+                    <ShareComponent :bar="randomBar" />
+                </div>
+            </div>
+            <!-- Mobile -->
+            <div class="md:hidden flex flex-col gap-4 mt-8">
+                <UButton
+                    id="reroll-button-mobile"
+                    color="orange"
+                    variant="outline"
+                    size="xl"
+                    @click="rerollBar"
+                    data-umami-event="reroll-pub"
+                    :data-umami-event-pub="randomBar.tags.name"
+                >
                     Reroll ({{ remainingRerolls }}/2)
                 </UButton>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <UButton
+                        id="hide-button-mobile"
+                        color="red"
+                        variant="outline"
+                        size="xl"
+                        @click="hideBar"
+                        data-umami-event="hide-pub"
+                        :data-umami-event-pub="randomBar.tags.name"
+                        class="w-full"
+                    >
+                        Cache moi ce bar
+                    </UButton>
+
+                    <ShareComponent :bar="randomBar" class="w-full" />
+                </div>
             </div>
         </div>
         <div v-else>
@@ -40,8 +109,12 @@
 
 <script>
 import { fetchNearbyBars, fetchBarsByAddress } from "~/server/placesService";
+import ShareComponent from "~/components/ShareComponent.vue";
 
 export default {
+    components: {
+        ShareComponent,
+    },
     data() {
         return {
             bars: [],
@@ -68,18 +141,16 @@ export default {
                 const radius = 3000;
                 const limit = 20;
                 try {
-                    const data = await fetchNearbyBars(
+                    let data = await fetchNearbyBars(
                         longitude,
                         latitude,
                         radius,
                         limit,
                     );
                     // Remove bars without a name
-                    data.features = data.features.filter(
-                        (bar) => bar.properties.name,
-                    );
+                    data = data.filter((bar) => bar.tags.name);
 
-                    if (data.features.length === 0) {
+                    if (data.length === 0) {
                         this.errorMessage =
                             "Aucun bar n'a été trouvé. On déménage dans une autre ville !";
                         console.info("No bars found nearby.");
@@ -87,7 +158,7 @@ export default {
                         return;
                     }
 
-                    this.bars = data.features;
+                    this.bars = data;
                     this.getRandomBar();
                 } catch (error) {
                     this.errorMessage =
@@ -117,7 +188,7 @@ export default {
         },
         remainingRerolls() {
             if (this.remainingRerolls === 0) {
-                // disable reroll button
+                // Disable reroll button
                 const rerollButton = document.getElementById("reroll-button");
                 if (rerollButton) {
                     rerollButton.disabled = true;
@@ -139,6 +210,7 @@ export default {
          * @returns {Object} A random bar.
          */
         getRandomBar() {
+            // Fail-safe (can't call this method if there are no bars fetched)
             if (this.bars.length === 0) {
                 this.randomBar = null;
                 return;
@@ -146,11 +218,12 @@ export default {
             let ignoredBars = JSON.parse(
                 localStorage.getItem("ignoredBar") || "[]",
             );
-            const availableBars = this.bars.filter(
-                (bar) => !ignoredBars.includes(bar.properties.name),
-            );
 
+            const availableBars = this.bars.filter((bar) => {
+                return !ignoredBars.includes(bar.tags.name);
+            });
             if (availableBars.length === 0) {
+                // Should fetch new bars from the API
                 this.randomBar = null;
                 return;
             }
@@ -160,16 +233,16 @@ export default {
             );
             const randomBar = availableBars[randomIndex];
 
-            if (!randomBar.properties.name) {
+            // Fail-safe (should not happen, but just in case)
+            if (!randomBar.tags.name) {
                 this.getRandomBar();
                 return;
             }
-
-            if (randomBar.properties.name === this.randomBar?.properties.name) {
+            // Do not show the same bar twice in a row
+            if (randomBar.tags.name === this.randomBar?.tags.name) {
                 this.getRandomBar();
                 return;
             }
-
             this.randomBar = randomBar;
         },
         /**
@@ -177,12 +250,13 @@ export default {
          */
         hideBar() {
             if (!this.randomBar) return;
+
             if (localStorage.getItem("ignoredBar") === null) {
                 localStorage.setItem("ignoredBar", JSON.stringify([]));
             }
 
             let ignoredBar = JSON.parse(localStorage.getItem("ignoredBar"));
-            ignoredBar.push(this.randomBar.properties.name);
+            ignoredBar.push(this.randomBar.tags.name);
             localStorage.setItem("ignoredBar", JSON.stringify(ignoredBar));
             this.getRandomBar();
         },
@@ -199,13 +273,11 @@ export default {
 
             try {
                 const limit = 20;
-                const data = await fetchBarsByAddress(this.address, limit);
+                let data = await fetchBarsByAddress(this.address, limit);
                 // Remove bars without a name
-                data.features = data.features.filter(
-                    (bar) => bar.properties.name,
-                );
+                data = data.filter((bar) => bar.tags.name);
 
-                if (data.features.length === 0) {
+                if (data.length === 0) {
                     this.errorMessage =
                         "Aucun bar n'a été trouvé proche de cette adresse.";
                     console.error("No bars found near this address.");
@@ -213,7 +285,7 @@ export default {
                     return;
                 }
 
-                this.bars = data.features;
+                this.bars = data;
                 this.getRandomBar();
                 this.errorMessage = "";
             } catch (error) {

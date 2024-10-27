@@ -29,7 +29,7 @@ export default {
         const script = document.createElement("script");
         script.async = true;
         script.defer = true;
-        script.src = "https://umami.wathis.com/script.js";
+        script.src = "https://CHANGEME/script.js";
         script.setAttribute("data-website-id", "931fa87c-714d-40de-974a-a62149db4899");
         document.head.appendChild(script);
         document.title = "DQBJVCS";

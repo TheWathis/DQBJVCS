@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "nuxt dev --host",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
@@ -14,6 +14,7 @@
     "dans-quel-bar-je-vais-ce-soir": "file:",
     "nuxt": "^3.13.0",
     "nuxt-app": "file:",
+    "nuxt-mdi": "^2.1.1",
     "vue": "latest",
     "vue-router": "latest"
   }
