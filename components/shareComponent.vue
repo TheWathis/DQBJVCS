@@ -31,12 +31,16 @@ export default {
         async shareBar() {
             if (!this.bar) return;
 
+            // Get address first
+            const address = await this.getAddress(this.bar.lat, this.bar.lon);
+
             const shareData = {
                 title: "Dans quel bar je vais ce soir ? 🍻",
                 text: [
                     `Je vais au ${this.bar.tags.name} ! 🍻🎉`,
+                    address ? `📍 : ${address}` : "",
                     "",
-                    "Trouve ton prochain bar sur dansquelbarjevaiscesoir.fr",
+                    "Trouve ton prochain bar sur https://dansquelbarjevaiscesoir.fr",
                     "",
                 ].join("\n"),
                 url: `https://maps.google.com/?q=${this.bar.lat},${this.bar.lon}`,
@@ -46,6 +50,18 @@ export default {
                 await navigator.share(shareData);
             } catch (error) {
                 console.error("Error sharing bar:", error);
+            }
+        },
+        async getAddress(lat, lon) {
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
+                );
+                const data = await response.json();
+                return `${data.address.house_number || ""} ${data.address.road || ""}, ${data.address.city || ""}`;
+            } catch (error) {
+                console.error("Error getting address:", error);
+                return null;
             }
         },
     },
