@@ -27,7 +27,6 @@ export const fetchNearbyBars = async (longitude, latitude, radius, limit) => {
       `data=${encodeURIComponent(query)}`,
     );
     const bars = response.data.elements.slice(0, limit);
-    console.log("Fetched nearby bars:", bars);
     return bars;
   } catch (error) {
     console.error("Error fetching nearby bars:", error);

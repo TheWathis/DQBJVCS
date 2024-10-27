@@ -34,7 +34,9 @@
             </div>
         </div>
         <div v-else-if="randomBar">
-            <p>{{ randomBar.tags.name }} !</p>
+            <p class="cursor-pointer hover:underline" @click="openMap">
+                {{ randomBar.tags.name }} !
+            </p>
             <!-- Desktop -->
             <div class="hidden md:grid grid-cols-3 gap-4 mt-8">
                 <div class="flex justify-start">
@@ -296,6 +298,32 @@ export default {
             } finally {
                 this.loading = false;
             }
+        },
+        /**
+         * Open the map with the bar's location
+         */
+        openMap() {
+            if (!this.randomBar) return;
+            const { lat, lon } = this.randomBar;
+            const name = encodeURIComponent(this.randomBar.tags.name);
+
+            // Check platform
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+            let mapsUrl;
+            if (isAndroid) {
+                // Android native maps
+                mapsUrl = `geo:${lat},${lon}?q=${lat},${lon}(${name})`;
+            } else if (isIOS) {
+                // iOS Apple Maps
+                mapsUrl = `maps:?q=${name}&ll=${lat},${lon}`;
+            } else {
+                // Default to Google Maps for others
+                mapsUrl = `https://maps.google.com/?q=${lat},${lon}`;
+            }
+
+            window.open(mapsUrl, "_blank");
         },
     },
 };
