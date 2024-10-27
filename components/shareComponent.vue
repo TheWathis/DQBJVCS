@@ -32,14 +32,13 @@ export default {
             if (!this.bar) return;
 
             const shareData = {
-                title: "Bar Recommendation",
-                text: `Check out this bar: ${this.bar.tags.name}`,
+                title: "Dans quel bar je vais ce soir ? 🍻",
+                text: `Je vais au ${this.bar.tags.name} ! 🍻🎉`,
                 url: `https://maps.google.com/?q=${this.bar.lat},${this.bar.lon}`,
             };
 
             try {
                 await navigator.share(shareData);
-                console.log("Bar shared successfully");
             } catch (error) {
                 console.error("Error sharing bar:", error);
             }
