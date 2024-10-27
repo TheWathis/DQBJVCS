@@ -33,7 +33,12 @@ export default {
 
             const shareData = {
                 title: "Dans quel bar je vais ce soir ? 🍻",
-                text: `Je vais au ${this.bar.tags.name} ! 🍻🎉`,
+                text: [
+                    `Je vais au ${this.bar.tags.name} ! 🍻🎉`,
+                    "",
+                    "Trouve ton prochain bar sur dansquelbarjevaiscesoir.fr",
+                    "",
+                ].join("\n"),
                 url: `https://maps.google.com/?q=${this.bar.lat},${this.bar.lon}`,
             };
 
