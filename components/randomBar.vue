@@ -72,7 +72,7 @@
                 </div>
             </div>
             <!-- Mobile -->
-            <div class="md:hidden flex flex-col gap-4 mt-8">
+            <div class="md:hidden flex flex-col gap-4 mt-8 mx-4">
                 <UButton
                     id="reroll-button-mobile"
                     color="orange"
@@ -138,7 +138,6 @@ export default {
         }
         navigator.geolocation.getCurrentPosition(
             async (position) => {
-                console.debug(position);
                 const { latitude, longitude } = position.coords;
                 const radius = 3000;
                 const limit = 20;
@@ -260,6 +259,10 @@ export default {
             let ignoredBar = JSON.parse(localStorage.getItem("ignoredBar"));
             ignoredBar.push(this.randomBar.tags.name);
             localStorage.setItem("ignoredBar", JSON.stringify(ignoredBar));
+
+            // Trigger storage event to update the list of ignored bars
+            window.dispatchEvent(new Event("storage"));
+
             this.getRandomBar();
         },
         /**

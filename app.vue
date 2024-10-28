@@ -10,6 +10,26 @@ useHead({
 
 <template>
     <div class="min-h-screen flex flex-col">
+        <nav
+            class="w-full py-4 px-6 bg-white dark:bg-black border-b dark:border-gray-800"
+        >
+            <div class="flex justify-end gap-4">
+                <UButton
+                    color="gray"
+                    variant="ghost"
+                    @click="showHiddenBars = true"
+                >
+                    Voir les bars cachés
+                </UButton>
+                <UButton
+                    color="gray"
+                    variant="ghost"
+                    @click="showAboutModal = true"
+                >
+                    À propos
+                </UButton>
+            </div>
+        </nav>
         <div
             class="antialiased bg-white dark:bg-black dark:text-white flex-1 flex flex-col items-center justify-center sm:text-base text-black text-sm"
         >
@@ -37,12 +57,31 @@ useHead({
                 © OpenStreetMap contributors
             </div>
         </footer>
+
+        <AboutModal v-model="showAboutModal" />
+        <HiddenBars
+            v-model="showHiddenBars"
+            @bar-unhidden="handleBarUnhidden"
+        />
     </div>
 </template>
 
 <script lang="ts">
+import AboutModal from "./components/AboutModal.vue";
+import HiddenBars from "./components/HiddenBars.vue";
+
 export default {
     name: "App",
+    components: {
+        AboutModal,
+        HiddenBars,
+    },
+    data() {
+        return {
+            showAboutModal: false,
+            showHiddenBars: false,
+        };
+    },
     mounted() {
         const script = document.createElement("script");
         script.async = true;
@@ -54,6 +93,14 @@ export default {
         );
         document.head.appendChild(script);
         document.title = "DQBJVCS";
+    },
+    methods: {
+        handleBarUnhidden() {
+            // Refresh the random bar component when a bar is unhidden
+            if (this.$refs.randomBar) {
+                this.$refs.randomBar.getRandomBar();
+            }
+        },
     },
 };
 </script>
