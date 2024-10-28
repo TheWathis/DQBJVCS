@@ -38,7 +38,7 @@
                 {{ randomBar.tags.name }} !
             </p>
             <!-- Desktop -->
-            <div class="hidden md:grid grid-cols-3 gap-4 mt-8">
+            <div class="hidden md:grid grid-cols-3 gap-4 mt-8 mx-4">
                 <div class="flex justify-start">
                     <UButton
                         id="hide-button"
