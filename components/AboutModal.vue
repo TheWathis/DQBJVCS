@@ -11,7 +11,7 @@
                 </p>
 
                 <p>
-                    Grâce aux données OpenStreetMap, on te proposons une
+                    Grâce aux données OpenStreetMap, je te propose une
                     sélection de bars à proximité. Plus besoin de te prendre la
                     tête pour choisir où aller !
                 </p>

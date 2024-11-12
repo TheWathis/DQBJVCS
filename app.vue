@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import RandomBar from "./components/randomBar.vue";
+import RandomBar from "./components/RandomBar.vue";
 
 useHead({
     htmlAttrs: {
@@ -97,8 +97,8 @@ export default {
     methods: {
         handleBarUnhidden() {
             // Refresh the random bar component when a bar is unhidden
-            if (this.$refs.randomBar) {
-                this.$refs.randomBar.getRandomBar();
+            if (this.$refs.RandomBar) {
+                this.$refs.RandomBar.getRandomBar();
             }
         },
     },
