@@ -34,72 +34,35 @@
             </div>
         </div>
         <div v-else-if="randomBar">
-            <p class="cursor-pointer hover:underline" @click="openMap">
-                {{ randomBar.tags.name }} !
-            </p>
+            <div class="flex items-center justify-center gap-2">
+                <p>{{ randomBar.tags.name }} !</p>
+                <ShareButton :bar="randomBar" />
+            </div>
             <!-- Desktop -->
             <div class="hidden md:grid grid-cols-3 gap-4 mt-8 mx-4">
                 <div class="flex justify-start">
-                    <UButton
-                        id="hide-button"
-                        color="red"
-                        variant="outline"
-                        size="xl"
-                        @click="hideBar"
-                        data-umami-event="hide-pub"
-                        :data-umami-event-pub="randomBar.tags.name"
-                    >
-                        Cache moi ce bar
-                    </UButton>
+                    <HideButton :bar="randomBar" @barHidden="getRandomBar" />
                 </div>
 
                 <div class="flex justify-center">
-                    <UButton
-                        id="reroll-button"
-                        color="orange"
-                        variant="outline"
-                        size="xl"
-                        @click="rerollBar"
-                        data-umami-event="reroll-pub"
-                        :data-umami-event-pub="randomBar.tags.name"
-                    >
-                        Reroll ({{ remainingRerolls }}/2)
-                    </UButton>
+                    <RerollButton
+                        :bar="randomBar"
+                        @barRerolled="getRandomBar"
+                    />
                 </div>
 
                 <div class="flex justify-end">
-                    <ShareComponent :bar="randomBar" />
+                    <GoToButton :bar="randomBar" />
                 </div>
             </div>
             <!-- Mobile -->
             <div class="md:hidden flex flex-col gap-4 mt-8 mx-4">
-                <UButton
-                    id="reroll-button-mobile"
-                    color="orange"
-                    variant="outline"
-                    size="xl"
-                    @click="rerollBar"
-                    data-umami-event="reroll-pub"
-                    :data-umami-event-pub="randomBar.tags.name"
-                >
-                    Reroll ({{ remainingRerolls }}/2)
-                </UButton>
+                <RerollButton :bar="randomBar" @barRerolled="getRandomBar" />
 
                 <div class="grid grid-cols-2 gap-4">
-                    <UButton
-                        id="hide-button-mobile"
-                        color="red"
-                        variant="outline"
-                        size="xl"
-                        @click="hideBar"
-                        data-umami-event="hide-pub"
-                        :data-umami-event-pub="randomBar.tags.name"
-                        class="w-full"
-                    >
-                        Cache moi ce bar
-                    </UButton>
+                    <HideButton :bar="randomBar" @barHidden="getRandomBar" />
 
-                    <ShareComponent :bar="randomBar" class="w-full" />
+                    <ShareButton :bar="randomBar" class="w-full" />
                 </div>
             </div>
         </div>
@@ -111,11 +74,17 @@
 
 <script>
 import { fetchNearbyBars, fetchBarsByAddress } from "~/server/placesService";
-import ShareComponent from "~/components/ShareComponent.vue";
+import GoToButton from "~/components/buttons/GoToButton.vue";
+import HideButton from "~/components/buttons/HideButton.vue";
+import RerollButton from "~/components/buttons/RerollButton.vue";
+import ShareButton from "~/components/buttons/ShareButton.vue";
 
 export default {
     components: {
-        ShareComponent,
+        GoToButton,
+        HideButton,
+        RerollButton,
+        ShareButton,
     },
     data() {
         return {
@@ -125,7 +94,6 @@ export default {
             address: "",
             loading: false,
             canBeFixed: false,
-            remainingRerolls: 2,
         };
     },
     async mounted() {
@@ -187,25 +155,8 @@ export default {
         errorMessage() {
             this.loading = false;
         },
-        remainingRerolls() {
-            if (this.remainingRerolls === 0) {
-                // Disable reroll button
-                const rerollButton = document.getElementById("reroll-button");
-                if (rerollButton) {
-                    rerollButton.disabled = true;
-                }
-            }
-        },
     },
     methods: {
-        /**
-         * Reroll the bar.
-         */
-        rerollBar() {
-            if (this.remainingRerolls === 0) return;
-            this.getRandomBar();
-            this.remainingRerolls--;
-        },
         /**
          * Get a random bar from the list.
          * @returns {Object} A random bar.
@@ -247,25 +198,6 @@ export default {
             this.randomBar = randomBar;
         },
         /**
-         * Hide the current bar and get a new one.
-         */
-        hideBar() {
-            if (!this.randomBar) return;
-
-            if (localStorage.getItem("ignoredBar") === null) {
-                localStorage.setItem("ignoredBar", JSON.stringify([]));
-            }
-
-            let ignoredBar = JSON.parse(localStorage.getItem("ignoredBar"));
-            ignoredBar.push(this.randomBar.tags.name);
-            localStorage.setItem("ignoredBar", JSON.stringify(ignoredBar));
-
-            // Trigger storage event to update the list of ignored bars
-            window.dispatchEvent(new Event("storage"));
-
-            this.getRandomBar();
-        },
-        /**
          * Fetch bars by address.
          */
         async fetchBarsByAddress() {
@@ -301,32 +233,6 @@ export default {
             } finally {
                 this.loading = false;
             }
-        },
-        /**
-         * Open the map with the bar's location
-         */
-        openMap() {
-            if (!this.randomBar) return;
-            const { lat, lon } = this.randomBar;
-            const name = encodeURIComponent(this.randomBar.tags.name);
-
-            // Check platform
-            const isAndroid = /Android/i.test(navigator.userAgent);
-            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-            let mapsUrl;
-            if (isAndroid) {
-                // Android native maps
-                mapsUrl = `geo:${lat},${lon}?q=${lat},${lon}(${name})`;
-            } else if (isIOS) {
-                // iOS Apple Maps
-                mapsUrl = `maps:?q=${name}&ll=${lat},${lon}`;
-            } else {
-                // Default to Google Maps for others
-                mapsUrl = `https://maps.google.com/?q=${lat},${lon}`;
-            }
-
-            window.open(mapsUrl, "_blank");
         },
     },
 };

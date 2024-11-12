@@ -1,17 +1,13 @@
 <template>
-    <UButton
+    <div
         v-if="canShare"
-        id="share-button"
-        color="blue"
-        variant="outline"
-        size="xl"
         @click="shareBar"
         data-umami-event="share-pub"
         :data-umami-event-pub="bar.tags.name"
-        class="w-full md:w-auto"
+        class="cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
     >
-        Allons-y !
-    </UButton>
+        <Icon name="mdi:share-variant" class="h-6 w-6" />
+    </div>
 </template>
 
 <script>
