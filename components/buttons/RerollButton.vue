@@ -8,7 +8,7 @@
         data-umami-event="reroll-pub"
         :data-umami-event-pub="bar.tags.name"
     >
-        Reroll ({{ remainingRerolls }}/2)
+        Reroll ({{ remainingRerolls }}/{{ maxRerolls }})
     </UButton>
 </template>
 
@@ -19,21 +19,22 @@ export default {
             type: Object,
             required: true,
         },
+        maxRerolls: {
+            type: Number,
+            default: 2,
+        },
     },
     data() {
         return {
-            remainingRerolls: 2,
+            remainingRerolls: this.maxRerolls,
         };
+    },
+    mounted() {
+        this.updateDisableReroll();
     },
     watch: {
         remainingRerolls() {
-            if (this.remainingRerolls === 0) {
-                // Disable reroll button
-                const rerollButton = document.getElementById("reroll-button");
-                if (rerollButton) {
-                    rerollButton.disabled = true;
-                }
-            }
+            updateDisableReroll();
         },
     },
     methods: {
@@ -45,6 +46,18 @@ export default {
             // Emit an event to notify the parent
             this.$emit("barRerolled");
             this.remainingRerolls--;
+        },
+        /**
+         * Disable the button if there are no more rerolls.
+         */
+        updateDisableReroll() {
+            if (this.remainingRerolls === 0) {
+                // Disable reroll button
+                const rerollButton = document.getElementById("reroll-button");
+                if (rerollButton) {
+                    rerollButton.disabled = true;
+                }
+            }
         },
     },
 };

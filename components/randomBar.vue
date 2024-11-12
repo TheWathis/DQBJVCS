@@ -47,6 +47,7 @@
                 <div class="flex justify-center">
                     <RerollButton
                         :bar="randomBar"
+                        :maxRerolls="bars.length < 2 ? (bars.length - 1) : 2"
                         @barRerolled="getRandomBar"
                     />
                 </div>
@@ -62,7 +63,7 @@
                 <div class="grid grid-cols-2 gap-4">
                     <HideButton :bar="randomBar" @barHidden="getRandomBar" />
 
-                    <ShareButton :bar="randomBar" class="w-full" />
+                    <GoToButton :bar="randomBar" class="w-full" />
                 </div>
             </div>
         </div>
@@ -88,12 +89,12 @@ export default {
     },
     data() {
         return {
-            bars: [],
-            randomBar: null,
-            errorMessage: "",
             address: "",
-            loading: false,
+            bars: [],
             canBeFixed: false,
+            errorMessage: "",
+            loading: false,
+            randomBar: null,
         };
     },
     async mounted() {
