@@ -43,7 +43,7 @@ export default {
                 mapsUrl = `maps:?q=${name}&ll=${lat},${lon}`;
             } else {
                 // Default to Google Maps for others
-                mapsUrl = `https://maps.google.com/?q=${lat},${lon}`;
+                mapsUrl = `https://maps.google.com/?q=${name}&ll=${lat},${lon}`;
             }
 
             window.open(mapsUrl, "_blank");
