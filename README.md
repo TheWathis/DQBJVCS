@@ -1,10 +1,16 @@
-# Nuxt 3 Minimal Starter
+# DansQuelBarJeVaisCeSoir
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Decidez de votre bar pour ce soir en un clic !
 
-## Setup
+## Nuxt 3
 
-Make sure to install the dependencies:
+Développé avec [Nuxt 3](https://v3.nuxtjs.org/), le framework front-end pour Vue.js.
+
+## Installation
+
+### Setup
+
+Installations des dépendances:
 
 ```bash
 # npm
@@ -20,9 +26,9 @@ yarn install
 bun install
 ```
 
-## Development Server
+## Development
 
-Start the development server on `http://localhost:3000`:
+Lancer le serveur de développement (`http://localhost:3000`)
 
 ```bash
 # npm
@@ -40,7 +46,7 @@ bun run dev
 
 ## Production
 
-Build the application for production:
+Build pour la production:
 
 ```bash
 # npm
@@ -56,7 +62,7 @@ yarn build
 bun run build
 ```
 
-Locally preview production build:
+Build de prévisualisation pour la production:
 
 ```bash
 # npm
@@ -71,5 +77,3 @@ yarn preview
 # bun
 bun run preview
 ```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
