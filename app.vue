@@ -13,21 +13,32 @@ useHead({
         <nav
             class="w-full py-4 px-6 bg-white dark:bg-black border-b dark:border-gray-800"
         >
-            <div class="flex justify-end gap-4">
-                <UButton
-                    color="gray"
-                    variant="ghost"
-                    @click="showHiddenBars = true"
+            <div class="flex justify-between items-center">
+                <!-- Left side - Address -->
+                <div
+                    v-if="currentAddress"
+                    class="text-sm text-gray-600 dark:text-gray-400"
                 >
-                    Voir les bars cachés
-                </UButton>
-                <UButton
-                    color="gray"
-                    variant="ghost"
-                    @click="showAboutModal = true"
-                >
-                    À propos
-                </UButton>
+                    {{ currentAddress }}
+                </div>
+                <div v-else class="invisible"><!-- Placeholder --></div>
+                <!-- Right side - Actions -->
+                <div class="flex justify-end gap-4">
+                    <UButton
+                        color="gray"
+                        variant="ghost"
+                        @click="showHiddenBars = true"
+                    >
+                        Voir les bars cachés
+                    </UButton>
+                    <UButton
+                        color="gray"
+                        variant="ghost"
+                        @click="showAboutModal = true"
+                    >
+                        À propos
+                    </UButton>
+                </div>
             </div>
         </nav>
         <div
@@ -41,7 +52,7 @@ useHead({
             <div
                 class="dark:text-white font-semibold sm:text-4xl text-3xl text-black text-center mt-8 lg:w-1/2 w-full"
             >
-                <RandomBar />
+                <RandomBar ref="randomBar" @address-updated="updateAddress" />
             </div>
         </div>
 
@@ -80,6 +91,7 @@ export default {
         return {
             showAboutModal: false,
             showHiddenBars: false,
+            currentAddress: "",
         };
     },
     mounted() {
@@ -95,11 +107,22 @@ export default {
         document.title = "DQBJVCS";
     },
     methods: {
+        /**
+         * Handles the event when a bar is unhidden from the hidden bars list.
+         * Refreshes the random bar component to update the available bars.
+         */
         handleBarUnhidden() {
             // Refresh the random bar component when a bar is unhidden
             if (this.$refs.RandomBar) {
                 this.$refs.RandomBar.getRandomBar();
             }
+        },
+        /**
+         * Updates the current address displayed in the header.
+         * @param address The new address to display
+         */
+        updateAddress(address: string) {
+            this.currentAddress = address;
         },
     },
 };

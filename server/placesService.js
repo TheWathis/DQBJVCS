@@ -2,13 +2,13 @@ import axios from "axios";
 
 /**
  * Fetches nearby bars from Overpass API
- * @param {float} longitude Longitude of the center of the circle
  * @param {float} latitude Latitude of the center of the circle
+ * @param {float} longitude Longitude of the center of the circle
  * @param {int} radius Radius of the circle in meters
  * @param {int} limit Number of bars to return
  * @returns List of bars
  */
-export const fetchNearbyBars = async (longitude, latitude, radius, limit) => {
+export const fetchNearbyBars = async (latitude, longitude, radius, limit) => {
   const overpassUrl = `https://overpass-api.de/api/interpreter`;
   const query = `
         [out:json][timeout:25];
@@ -35,12 +35,11 @@ export const fetchNearbyBars = async (longitude, latitude, radius, limit) => {
 };
 
 /**
- * Fetches bars by address using Nominatim and Overpass API
+ * Fetches address using Nominatim and Overpass API
  * @param {String} address City name
- * @param {int} limit Number of bars to return
- * @returns List of bars
+ * @returns Latitude and longitude of the given address
  */
-export const fetchBarsByAddress = async (address, limit) => {
+export const fetchCoordinatesByAddress = async (address) => {
   const nominatimUrl = `https://nominatim.openstreetmap.org/search`;
   const params = {
     q: address,
@@ -55,10 +54,10 @@ export const fetchBarsByAddress = async (address, limit) => {
       throw new Error("No results found for the given address");
     }
 
-    const longitude = response.data[0].lon;
     const latitude = response.data[0].lat;
+    const longitude = response.data[0].lon;
 
-    return fetchNearbyBars(longitude, latitude, 1000, limit);
+    return { latitude, longitude };
   } catch (error) {
     console.error("Error fetching bars by address:", error);
     throw error;
